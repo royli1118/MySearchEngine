@@ -8,6 +8,12 @@ public class Tokenizer {
 
     private HashMap<Integer,String> hm;
 
+
+
+    public Tokenizer(){
+        hm = new HashMap<Integer, String>();
+    }
+
     /**
      * Match all the words
      * @param s
@@ -15,7 +21,6 @@ public class Tokenizer {
      */
     public HashMap<Integer, String> pickSpecialWords(String s)
     {
-        hm = new HashMap<Integer, String>();
         // Matching all tokenization
         Pattern hypen = Pattern.compile("[a-zA-Z]+\\-[a-zA-Z]+"); // Tokenize for hypen
         Pattern ipv4 = Pattern.compile("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"); // Tokenize for ipv4

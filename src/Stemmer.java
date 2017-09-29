@@ -109,7 +109,7 @@ class Stemmer
     private final boolean cons(int i)
     {  switch (b[i])
     {  case 'a': case 'e': case 'i': case 'o': case 'u': return false;
-        case 'y': return (i==0) ? true : !cons(i-1);
+        case 'y': return (i == 0) || !cons(i - 1);
         default: return true;
     }
     }
