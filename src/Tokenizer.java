@@ -1,3 +1,4 @@
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -19,7 +20,7 @@ public class Tokenizer {
      * @param s
      * @return
      */
-    public HashMap<Integer, String> pickSpecialWords(String s)
+    public HashMap<Integer, String> pickSpecialWords(String s,Integer index)
     {
         // Matching all tokenization
         Pattern hypen = Pattern.compile("[a-zA-Z]+\\-[a-zA-Z]+"); // Tokenize for hypen
@@ -41,48 +42,45 @@ public class Tokenizer {
         Matcher mWords = mwords.matcher(s);
         Matcher acronyms = acro.matcher(s);
 
-
-        int i = 0;
-
         while (mHypen.find()){
-            hm.put(i,mHypen.group(0));
-            i++;
+            hm.put(index,mHypen.group(0));
+            index++;
 
         }
 
         while(mIpv4.find()){
-            hm.put(i,mIpv4.group(0));
-            i++;
+            hm.put(index,mIpv4.group(0));
+            index++;
         }
 
         while(mIpv6.find()){
-            hm.put(i,mIpv4.group(0));
-            i++;
+            hm.put(index,mIpv4.group(0));
+            index++;
         }
 
         while(mUrl.find()){
-            hm.put(i,mUrl.group(0));
-            i++;
+            hm.put(index,mUrl.group(0));
+            index++;
         }
 
         while(mEmail.find()){
-            hm.put(i,mEmail.group(0));
-            i++;
+            hm.put(index,mEmail.group(0));
+            index++;
         }
 
         while(sQuotation.find()){
-            hm.put(i,sQuotation.group(0));
-            i++;
+            hm.put(index,sQuotation.group(0));
+            index++;
         }
 
         while(mWords.find()){
-            hm.put(i,mWords.group(0));
-            i++;
+            hm.put(index,mWords.group(0));
+            index++;
         }
 
         while(acronyms.find()){
-            hm.put(i,acronyms.group(0));
-            i++;
+            hm.put(index,acronyms.group(0));
+            index++;
         }
 
         return hm;
@@ -93,13 +91,13 @@ public class Tokenizer {
      * @param s
      * @return hm
      */
-    public HashMap<Integer,String> pickOtherWords(String s) {
+    public HashMap<Integer,String> pickOtherWords(String s,Integer index) {
 
-        String[] r = s.split("[.,:;”’()?!]");
+        String[] r = s.split("[ .,:;”’()?!]");
         for (int i = 0; i < r.length;i++){
-            hm.put(i,r[i]);
+            hm.put(index,r[i]);
+            index++;
         }
-        System.out.println(hm.size());
         return hm;
     }
 
@@ -109,8 +107,9 @@ public class Tokenizer {
         String s = "127.0.0.1  , hahahahahha, abc-123,  abc-abc, defsfdkljikcc dd 66,lala-hahahha,   192.168.1.2, 192,168.3.5";
 //        String s = "127.0.0.1";
         Tokenizer tk = new Tokenizer();
-        HashMap<Integer,String> hm = tk.pickSpecialWords(s);
-        hm = tk.pickOtherWords(s);
+        int index = 0;
+        HashMap<Integer,String> hm = tk.pickSpecialWords(s,index);
+        hm = tk.pickOtherWords(s,index);
         Iterator it = hm.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry)it.next();

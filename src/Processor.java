@@ -1,3 +1,4 @@
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 
@@ -5,12 +6,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class Printer {
+public class Processor {
 
-    HashMap<Integer,String> hm;
+    private HashMap<Integer, String> hm;
+    private Integer index;
 
-    public HashMap<Integer,String> print(File files) {
+    public Processor() {
         hm = new HashMap<Integer, String>();
+        index = 0;
+    }
+
+    public HashMap<Integer, String> process(File files) {
         Tokenizer tk = new Tokenizer();
         LineIterator it = null;
         try {
@@ -24,9 +30,10 @@ public class Printer {
                 String line = it.nextLine().trim();
                 // faster reading line by Apache Commons IO,readlines with milliseconds
                 // Doing the tokenization line by line
-                if(!(line.equals(null)&&line.equals(""))){
-                    hm = tk.pickSpecialWords(line);
-                    hm = tk.pickOtherWords(line);
+                if (!(line.equals(null) && line.equals(""))) {
+                    hm = tk.pickSpecialWords(line, hm.size() + 1);
+
+                    hm = tk.pickOtherWords(line, hm.size() + 1);
                 }
 
             }
