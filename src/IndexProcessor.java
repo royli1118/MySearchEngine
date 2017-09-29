@@ -1,4 +1,5 @@
 
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 
@@ -32,9 +33,12 @@ public class IndexProcessor {
                 // faster reading line by Apache Commons IO,readlines with milliseconds
                 // Doing the tokenization line by line
                 if (!(line.equals(null) && line.equals(""))) {
+                    int indexb4 = hm.size();
                     hm = tk.pickSpecialWords(line, hm.size() + 1);
-
-                    hm = tk.pickOtherWords(line, hm.size() + 1);
+                    int indexafter = hm.size();
+                    if (indexb4 - indexafter == 0) {
+                        hm = tk.pickOtherWords(line, hm.size() + 1);
+                    }
                 }
 
             }
