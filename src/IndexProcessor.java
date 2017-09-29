@@ -6,18 +6,19 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class Processor {
+public class IndexProcessor {
 
     private HashMap<Integer, String> hm;
     private Integer index;
 
-    public Processor() {
+    public IndexProcessor() {
         hm = new HashMap<Integer, String>();
         index = 0;
     }
 
     public HashMap<Integer, String> process(File files) {
         Tokenizer tk = new Tokenizer();
+        StopwordsRemover swr = new StopwordsRemover();
         LineIterator it = null;
         try {
             it = FileUtils.lineIterator(files, "UTF-8");
@@ -42,4 +43,5 @@ public class Processor {
             LineIterator.closeQuietly(it);
         }
     }
+
 }
