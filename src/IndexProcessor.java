@@ -39,6 +39,9 @@ public class IndexProcessor {
                     if (indexb4 - indexafter == 0) {
                         hm = tk.pickOtherWords(line, hm.size() + 1);
                     }
+                    else if(indexb4 - indexafter == 1){
+                        System.out.println("It's good");
+                    }
                 }
 
             }
