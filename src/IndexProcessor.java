@@ -1,5 +1,3 @@
-
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 
@@ -18,7 +16,7 @@ public class IndexProcessor {
         hm = new HashMap<Integer, String>();
     }
 
-    public void process(File files) {
+    public HashMap<Integer, String> process(File files) {
         Tokenizer tk = new Tokenizer();
         StopwordsRemover swr = new StopwordsRemover();
         LineIterator it = null;
@@ -40,45 +38,33 @@ public class IndexProcessor {
                     int indexafter = hm.size();
                     if (indexb4 - indexafter == 0) {
                         hm = tk.pickOtherWords(line, hm.size() + 1);
-                    }
-                    else if(indexb4 - indexafter == 1){
+                    } else if (indexb4 - indexafter == 1) {
                         System.out.println("It's good");
                     }
                 }
 
             }
+            return hm;
         } finally {
             LineIterator.closeQuietly(it);
         }
-
-        try{
-            writeFiles(hm);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-        try {
-            swr.removeStopwords("index.txt");
-        } catch(Exception e){
-            e.printStackTrace();
-        }
-
-
     }
 
-    public void writeFiles(HashMap<Integer,String> hm){
-        try
-        {
-            PrintWriter outputFile = new PrintWriter("index.txt");
+    public void writeFiles(HashMap<Integer, String> hm, File outFile) {
+        try {
+
+            PrintWriter outputFile = new PrintWriter(outFile);
             Iterator it = hm.entrySet().iterator();
             while (it.hasNext()) {
-                Map.Entry pair = (Map.Entry)it.next();
-                outputFile.write(pair.getKey()+" "+pair.getValue());
+                Map.Entry pair = (Map.Entry) it.next();
+                outputFile.write(pair.getKey() + " " + pair.getValue());
                 it.remove(); // avoids a ConcurrentModificationException
             }
             outputFile.close();
-        }
-        catch (IOException e)
+
+        } catch (
+                IOException e)
+
         {
             System.out.println(e.toString());
         }

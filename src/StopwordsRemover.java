@@ -5,17 +5,17 @@ import java.io.*;
 public class StopwordsRemover {
 
 
-    public void removeStopwords(String filename) {
+    public void removeStopwords(String stopWordsFilename,String indexFilename) {
 
         try {
-            FileInputStream stopWordStream = new FileInputStream("stopwords.txt");
+            FileInputStream stopWordStream = new FileInputStream(stopWordsFilename);
             InputStreamReader iStreamReader = new InputStreamReader(stopWordStream, "UTF-8");
             BufferedReader StopWordBr = new BufferedReader(iStreamReader);
-            FileInputStream oldFileStream = new FileInputStream(filename);
+            FileInputStream oldFileStream = new FileInputStream(indexFilename);
             InputStreamReader isr = new InputStreamReader(oldFileStream, "UTF-8");
             BufferedReader oldFileBr = new BufferedReader(isr);
 
-            FileOutputStream newFileStream = new FileOutputStream(filename);
+            FileOutputStream newFileStream = new FileOutputStream(indexFilename);
             OutputStreamWriter osw = new OutputStreamWriter(newFileStream, "UTF-8");
             BufferedWriter newFileBw = new BufferedWriter(osw);
             String ss = null;
