@@ -18,7 +18,6 @@ public class IndexProcessor {
 
     public HashMap<Integer, String> process(File files) {
         Tokenizer tk = new Tokenizer();
-        StopwordsRemover swr = new StopwordsRemover();
         LineIterator it = null;
         // First we need to read all files
         try {
@@ -33,16 +32,9 @@ public class IndexProcessor {
                 // faster reading line by Apache Commons IO,readlines with milliseconds
                 // Doing the tokenization line by line
                 if (!(line.equals(null) && line.equals(""))) {
-                    int indexb4 = hm.size();
                     hm = tk.pickSpecialWords(line, hm.size() + 1);
-                    int indexafter = hm.size();
-                    if (indexb4 - indexafter == 0) {
-                        hm = tk.pickOtherWords(line, hm.size() + 1);
-                    } else if (indexb4 - indexafter == 1) {
-                        System.out.println("It's good");
-                    }
+                    hm = tk.pickOtherWords(line, hm.size() + 1);
                 }
-
             }
             return hm;
         } finally {
@@ -58,6 +50,7 @@ public class IndexProcessor {
             while (it.hasNext()) {
                 Map.Entry pair = (Map.Entry) it.next();
                 outputFile.write(pair.getKey() + " " + pair.getValue());
+                outputFile.write("\r\n");
                 it.remove(); // avoids a ConcurrentModificationException
             }
             outputFile.close();

@@ -5,7 +5,7 @@
 
 import java.util.List;
 
-//<editor-fold defaultstate="collapsed" desc="TFIDF calculator">
+
 /**
  * Class to calculate TfIdf of term.
  * @author Mubin Shrestha
@@ -19,8 +19,8 @@ public class TfIdf {
      * @param termToCheck : term of which tf is to be calculated.
      * @return tf(term frequency) of term termToCheck
      */
-    public double tfCalculator(String[] totalterms, String termToCheck) {
-        double count = 0;  //to count the overall occurrence of the term termToCheck
+    public float tfCalculator(String[] totalterms, String termToCheck) {
+        float count = 0;  //to count the overall occurrence of the term termToCheck
         for (String s : totalterms) {
             if (s.equalsIgnoreCase(termToCheck)) {
                 count++;
