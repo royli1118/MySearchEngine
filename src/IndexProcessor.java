@@ -5,22 +5,24 @@ import org.apache.commons.io.LineIterator;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class IndexProcessor {
 
     private HashMap<Integer, String> hm;
-    private Integer index;
 
     public IndexProcessor() {
         hm = new HashMap<Integer, String>();
-        index = 0;
     }
 
-    public HashMap<Integer, String> process(File files) {
+    public void process(File files) {
         Tokenizer tk = new Tokenizer();
         StopwordsRemover swr = new StopwordsRemover();
         LineIterator it = null;
+        // First we need to read all files
         try {
             it = FileUtils.lineIterator(files, "UTF-8");
 
@@ -45,10 +47,42 @@ public class IndexProcessor {
                 }
 
             }
-            return hm;
         } finally {
             LineIterator.closeQuietly(it);
         }
+
+        try{
+            writeFiles(hm);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        try {
+            swr.removeStopwords("index.txt");
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+
+
+    }
+
+    public void writeFiles(HashMap<Integer,String> hm){
+        try
+        {
+            PrintWriter outputFile = new PrintWriter("index.txt");
+            Iterator it = hm.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry pair = (Map.Entry)it.next();
+                outputFile.write(pair.getKey()+" "+pair.getValue());
+                it.remove(); // avoids a ConcurrentModificationException
+            }
+            outputFile.close();
+        }
+        catch (IOException e)
+        {
+            System.out.println(e.toString());
+        }
+
     }
 
 }
