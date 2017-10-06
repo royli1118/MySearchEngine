@@ -2,195 +2,259 @@
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Tokenizer {
 
-    private HashMap<Integer, String> hm;
-    private ArrayList<String> arrayList;
+    private HashSet<String> stopwords;
+    private HashMap<String, Integer> tokenAndQuantities;
 
 
     public Tokenizer() {
-        hm = new HashMap<Integer, String>();
+        stopwords = new HashSet<String>();
+        tokenAndQuantities = new HashMap<String,Integer>();
+    }
+
+
+    public void setStopwordList(HashSet<String> stopwordsSet) {
+        stopwords.addAll(stopwordsSet);
     }
 
     /**
-     * Match all the words
+     * Add the Token Quantities to the hashmap
      *
-     * @param s
+     * @param token
+     */
+    private void addToken(String token) {
+        //Reference from http://tartarus.org/martin/PorterStemmer/
+        Stemmer porterStemmer = new Stemmer();
+        porterStemmer.add(token.toCharArray(), token.length());
+        porterStemmer.stem();
+        String stemmedToken = porterStemmer.toString();
+
+        if (tokenAndQuantities.containsKey(stemmedToken)) {
+            tokenAndQuantities.put(stemmedToken, tokenAndQuantities.get(stemmedToken) + 1);
+        } else {
+            tokenAndQuantities.put(stemmedToken, 1);
+        }
+    }
+
+
+    /**
+     * Token Hypen Words
+     *
+     * @param check
      * @return
      */
-    public HashMap<Integer, String> pickSpecialWords(String s, Integer index) {
-        // Matching all tokenization
-        Pattern hypen = Pattern.compile("[a-zA-Z]+\\-[a-zA-Z]+"); // Tokenize for hypen
-        Pattern ipv4 = Pattern.compile("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"); // Tokenize for ipv4
-        Pattern ipv6 = Pattern.compile("^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$");// Tokenize for ipv6
-        Pattern url = Pattern.compile("^[a-zA-z]+://(/w+(-/w+)*)(/.(/w+(-/w+)*))*(/?/S*)?$"); //Tokenize for URL
-        Pattern email = Pattern.compile("^[/w-]+(/.[/w-]+)*@[/w-]+(/.[/w-]+)+$"); // Tokenize for email
-        Pattern sgquo = Pattern.compile("([\"'])(?:(?=(\\\\?))\\2.)*?\\1");     // Tokenize for Single Quotation
-        Pattern mwords = Pattern.compile("[A-Z][\\w\\s]+");       // Tokenize for two or more words separated by space
-        Pattern acro = Pattern.compile("(?:[a-zA-Z]\\.){2,}");       // Tokenize for acronyms
+    private String getHypen(String check) {
+        String back = check;
 
-        // Match all the patterns and put it into hashmap
-        Matcher mHypen = hypen.matcher(s);
-        Matcher mIpv4 = ipv4.matcher(s);
-        Matcher mIpv6 = ipv6.matcher(s);
-        Matcher mUrl = url.matcher(s);
-        Matcher mEmail = email.matcher(s);
-        Matcher sQuotation = sgquo.matcher(s);
-        Matcher mWords = mwords.matcher(s);
-        Matcher acronyms = acro.matcher(s);
+        // regex for email addresses
+        Pattern email_pattern = Pattern.compile("^[/w-]+(/.[/w-]+)*@[/w-]+(/.[/w-]+)+$"); // Tokenize for email
 
-        while (mHypen.find()) {
-            hm.put(index, mHypen.group(0));
-            index++;
-
+        Matcher m = email_pattern.matcher(check);
+        while (m.find()) {
+            String email = m.group(0);
+            addToken(email);
+            back = back.replaceFirst(email, "");
         }
 
-        while (mIpv4.find()) {
-            hm.put(index, mIpv4.group(0));
-            index++;
-        }
-
-        while (mIpv6.find()) {
-            hm.put(index, mIpv4.group(0));
-            index++;
-        }
-
-        while (mUrl.find()) {
-            hm.put(index, mUrl.group(0));
-            index++;
-        }
-
-        while (mEmail.find()) {
-            hm.put(index, mEmail.group(0));
-            index++;
-        }
-
-        while (sQuotation.find()) {
-            hm.put(index, sQuotation.group(0));
-            index++;
-        }
-
-        while (mWords.find()) {
-            hm.put(index, mWords.group(0));
-            index++;
-        }
-
-        while (acronyms.find()) {
-            hm.put(index, acronyms.group(0));
-            index++;
-        }
-
-        return hm;
+        return back;
     }
 
+    /**
+     * Token Email Address
+     *
+     * @param check
+     * @return
+     */
+    private String getEmailAddresses(String check) {
+        String back = check;
 
-    public ArrayList<String> pickSpecialWords2(String s) {
-        // Matching all tokenization
-        Pattern hypen = Pattern.compile("[a-zA-Z]+\\-[a-zA-Z]+"); // Tokenize for hypen
-        Pattern ipv4 = Pattern.compile("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"); // Tokenize for ipv4
-        Pattern ipv6 = Pattern.compile("^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$");// Tokenize for ipv6
-        Pattern url = Pattern.compile("^[a-zA-z]+://(/w+(-/w+)*)(/.(/w+(-/w+)*))*(/?/S*)?$"); //Tokenize for URL
-        Pattern email = Pattern.compile("^[/w-]+(/.[/w-]+)*@[/w-]+(/.[/w-]+)+$"); // Tokenize for email
-        Pattern sgquo = Pattern.compile("([\"'])(?:(?=(\\\\?))\\2.)*?\\1");     // Tokenize for Single Quotation
-        Pattern mwords = Pattern.compile("[A-Z][\\w\\s]+");       // Tokenize for two or more words separated by space
-        Pattern acro = Pattern.compile("(?:[a-zA-Z]\\.){2,}");       // Tokenize for acronyms
+        // regex for email addresses
+        Pattern email_pattern = Pattern.compile("^[/w-]+(/.[/w-]+)*@[/w-]+(/.[/w-]+)+$"); // Tokenize for email
 
-        // Match all the patterns and put it into hashmap
-        Matcher mHypen = hypen.matcher(s);
-        Matcher mIpv4 = ipv4.matcher(s);
-        Matcher mIpv6 = ipv6.matcher(s);
-        Matcher mUrl = url.matcher(s);
-        Matcher mEmail = email.matcher(s);
-        Matcher sQuotation = sgquo.matcher(s);
-        Matcher mWords = mwords.matcher(s);
-        Matcher acronyms = acro.matcher(s);
-
-        while (mHypen.find()) {
-            arrayList.add(mHypen.group(0));
-
-
+        Matcher m = email_pattern.matcher(check);
+        while (m.find()) {
+            String email = m.group(0);
+            addToken(email);
+            back = back.replaceFirst(email, "");
         }
 
-        while (mIpv4.find()) {
-            arrayList.add(mIpv4.group(0));
+        return back;
+    }
+
+    /**
+     * Token for URL
+     *
+     * @param check
+     * @return
+     */
+    private String getURL(String check) {
+        String back = check;
+
+        // regex for URL
+        Pattern url_pattern = Pattern.compile("^[a-zA-z]+://(/w+(-/w+)*)(/.(/w+(-/w+)*))*(/?/S*)?$"); //Tokenize for URL
+        Matcher m = url_pattern.matcher(check);
+        while (m.find()) {
+            String email = m.group(0);
+            addToken(email);
+            back = back.replaceFirst(email, "");
         }
 
-        while (mIpv6.find()) {
-            arrayList.add(mIpv4.group(0));
-        }
-
-        while (mUrl.find()) {
-            arrayList.add(mUrl.group(0));
-        }
-
-        while (mEmail.find()) {
-            arrayList.add(mEmail.group(0));
-        }
-
-        while (sQuotation.find()) {
-            arrayList.add(sQuotation.group(0));
-        }
-
-        while (mWords.find()) {
-            arrayList.add(mWords.group(0));
-        }
-
-        while (acronyms.find()) {
-            arrayList.add(acronyms.group(0));
-        }
-
-        return arrayList;
+        return back;
     }
 
 
     /**
-     * Picking other words which are not specified words
+     * Token for IPV4
      *
-     * @param s
-     * @return hm
+     * @param check
+     * @return
      */
-    public HashMap<Integer, String> pickOtherWords(String s, Integer index) {
+    private String getIPV4(String check) {
+        String back = check;
 
-        String[] r = s.split("[ .,:;”’()?!]");
-        for (int i = 0; i < r.length; i++) {
-            hm.put(index, r[i]);
-            index++;
+        // regex for IPV4
+        Pattern ipv4_pattern = Pattern.compile("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"); // Tokenize for ipv4
+        Matcher m = ipv4_pattern.matcher(check);
+        while (m.find()) {
+            String ipv4 = m.group(0);
+            addToken(ipv4);
+            back = back.replaceFirst(ipv4, "");
         }
-        return hm;
+
+        return back;
+    }
+
+    /**
+     * Token for IPV6
+     *
+     * @param check
+     * @return
+     */
+    private String getIPV6(String check) {
+        String back = check;
+
+        // regex for IPV6
+        Pattern ipv6_pattern = Pattern.compile("^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$");// Tokenize for ipv6
+        Matcher m = ipv6_pattern.matcher(check);
+        while (m.find()) {
+            String ipv4 = m.group(0);
+            addToken(ipv4);
+            back = back.replaceFirst(ipv4, "");
+        }
+
+        return back;
+    }
+
+    /**
+     * Token for SingleQuotation
+     *
+     * @param check
+     * @return
+     */
+    private String getSingleQuotation(String check) {
+        String back = check;
+
+        // regex for SingleQuotation
+        Pattern sgquo_pattern = Pattern.compile("([\"'])(?:(?=(\\\\?))\\2.)*?\\1");     // Tokenize for Single Quotation
+        Matcher m = sgquo_pattern.matcher(check);
+        while (m.find()) {
+            String sgquo = m.group(0);
+            addToken(sgquo);
+            back = back.replaceFirst(sgquo, "");
+        }
+
+        return back;
+    }
+
+    /**
+     * Token for Multiple Words (Which are two words and more, may have some words from last line and connect to the next line word)
+     *
+     * @param check
+     * @return
+     */
+    private String getMultipleWords(String check) {
+        String back = check;
+
+        // regex for multipleWords
+        Pattern mwords_pattern = Pattern.compile("[A-Z][\\w\\s]+");       // Tokenize for two or more words separated by space
+        Matcher m = mwords_pattern.matcher(check);
+        while (m.find()) {
+            String mwords = m.group(0);
+            addToken(mwords);
+            back = back.replaceFirst(mwords, "");
+        }
+
+        return back;
     }
 
 
-    public ArrayList<String> pickOtherWords2(String s) {
+    /**
+     * Token for acronyms
+     *
+     * @param check
+     * @return
+     */
+    private String getAcronyms(String check) {
+        String back = check;
 
-        String[] r = s.split("[ .,:;”’()?!]");
-        if (r.length != 0) {
-            for (int i = 0; i < r.length; i++) {
-                arrayList.add(r[i]);
+        // regex for acronyms
+        Pattern acro_pattern = Pattern.compile("(?:[a-zA-Z]\\.){2,}");
+        Matcher m = acro_pattern.matcher(check);
+        while (m.find()) {
+            String acro = m.group(0);
+            addToken(acro);
+            back = back.replaceFirst(acro, "");
+        }
+
+        return back;
+    }
+
+
+    /**
+     * HashMap of {token -> frequency}
+     * 1. remove whitespace seperated capital letter chaines
+     * a. if its chain at end of line, dont add it wait to check next line
+     * b. if chain is at start of line and last line had chain then first combine them
+     * c. otherwise just add the token
+     * 2. remove email addresses
+     * 3. split rest of tokens on whitespace and punctuation
+     */
+    public HashMap<String, Integer> tokenize(ArrayList<String> lines) {
+
+        Iterator<String> it = lines.iterator();
+
+        while (it.hasNext()) {
+            String line = it.next(); //get the next line
+            //In order to get tokens in specialized requirements, we need to take some actions such as using regular expressions
+            if (!line.equals("\uFEFF")&&!line.equals("")){
+                line = getHypen(line);
+                line = getEmailAddresses(line);
+                line = getURL(line);
+                line = getIPV4(line);
+                line = getIPV6(line);
+                //line = getSingleQuotation(line);
+                line = getMultipleWords(line);
+                line = getAcronyms(line);
+                // If we cannot pickup the tokens in specialized requirements, we need to regard every words as tokens
+                String[] words = line.split("[ .,:;”’()?!]");
+                if(words.length>0){
+                    for (String word : words) {
+                        if (!stopwords.contains(word)&&!word.equals("")) {
+                            addToken(word);
+                        }
+                    }
+                }
             }
         }
-        return arrayList;
+
+        return tokenAndQuantities;
     }
 
 
-    public static void main(String args[]) {
-
-        String s = "127.0.0.1  , hahahahahha, abc-123,  abc-abc, defsfdkljikcc dd 66,lala-hahahha,   192.168.1.2, 192,168.3.5";
-//        String s = "127.0.0.1";
-        Tokenizer tk = new Tokenizer();
-        int index = 0;
-        HashMap<Integer, String> hm = tk.pickSpecialWords(s, index);
-        hm = tk.pickOtherWords(s, index);
-        Iterator it = hm.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry) it.next();
-            System.out.println(pair.getKey() + " = " + pair.getValue());
-//            System.out.println(pair.getKey() + " = " + pair.getValue().toString().replaceAll("-"," "));
-            it.remove(); // avoids a ConcurrentModificationException
-        }
-    }
 }

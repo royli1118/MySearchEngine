@@ -1,81 +1,42 @@
 
 
-import java.io.*;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.LineIterator;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashSet;
 
 public class StopwordsRemover {
 
+    /**
+     * Read the stopwords from File.
+     *
+     */
+    public HashSet<String> readStopwordFile(String stopwordFilePath) {
+        HashSet<String> stopwords = new HashSet<String>();
+        File file = new File(stopwordFilePath);
 
-    public void removeStopwords(String stopWordsFilename,String indexFilename) {
+        LineIterator it = null;
 
         try {
-            FileInputStream stopWordStream = new FileInputStream(stopWordsFilename);
-            InputStreamReader iStreamReader = new InputStreamReader(stopWordStream, "UTF-8");
-            BufferedReader StopWordBr = new BufferedReader(iStreamReader);
-            FileInputStream oldFileStream = new FileInputStream(indexFilename);
-            InputStreamReader isr = new InputStreamReader(oldFileStream, "UTF-8");
-            BufferedReader oldFileBr = new BufferedReader(isr);
-
-            FileOutputStream newFileStream = new FileOutputStream(indexFilename);
-            OutputStreamWriter osw = new OutputStreamWriter(newFileStream, "UTF-8");
-            BufferedWriter newFileBw = new BufferedWriter(osw);
-            String ss = null;
-            String sa = null;
-            String saa = null;
-            StringBuffer s2 = new StringBuffer();
-            StringBuffer s1 = new StringBuffer();
-            while ((ss = StopWordBr.readLine()) != null) {
-
-                s1.append(ss).append(" ");
-
-            }
-            String[] resultArray = (s1.toString()).split(" ");
-            while ((sa = oldFileBr.readLine()) != null) {
-
-                s2.append(sa).append(" ");
-
-            }
-            String[] srcArray = (s2.toString()).split(" ");
-            for (int i = 0; i < srcArray.length; i++)
-                for (int j = 0; j < resultArray.length; j++) {
-
-                    if (srcArray[i].equals(resultArray[j])) {
-
-                        srcArray[i] = "";
-
-                    }
-                }
-
-            StringBuffer finalStr = new StringBuffer();
-            for (int i = 0; i < srcArray.length; i++) {
-
-                if (srcArray[i] != null) {
-
-                    finalStr = finalStr.append(srcArray[i]).append(" ");
-                }
-
-            }
-
-            newFileBw.write(finalStr.toString());
-            newFileBw.newLine();
-            newFileBw.flush();
-            newFileBw.close();
-            StopWordBr.close();
-            oldFileBr.close();
-        } catch (FileNotFoundException e) {
-
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-
-        } catch (UnsupportedEncodingException e) {
-
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            it = FileUtils.lineIterator(file, "UTF-8");
 
         } catch (IOException e) {
-
-            // TODO Auto-generated catch block
             e.printStackTrace();
-
         }
+
+        try {
+            while (it.hasNext()) {
+                String line = it.nextLine().trim();
+                // faster reading line by Apache Commons IO,readlines with milliseconds
+                // Doing the tokenization line by line
+                stopwords.add(line);
+            }
+        } finally {
+            LineIterator.closeQuietly(it);
+        }
+
+        return stopwords;
     }
 }
