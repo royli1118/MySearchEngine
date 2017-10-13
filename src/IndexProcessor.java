@@ -84,42 +84,24 @@ public class IndexProcessor {
                              ArrayList<File> alltextFiles) {
         termDocFreqs = new HashMap<String, Integer>();
         termFreqs = new HashMap<String, String>();
-
-        int index = 0; // The pointer of all documents, from beginning to end
-
-        Iterator<HashMap<String, Integer>> it = docTermFrequencies.iterator();
-        while (it.hasNext()) {
-
-            HashMap<String, Integer> termFreqsForDoc = it.next();
-
-            // Get the filename of this document
-            String fileName = alltextFiles.get(index).getName();
-
-            // List all tokens from this document
-            for (Map.Entry<String, Integer> entry : termFreqsForDoc.entrySet()) {
-                String term = entry.getKey();
-                int termFreq = entry.getValue();
-
-                // add to hashmap of term document frequencies
-                if (termDocFreqs.containsKey(term)) {
-                    termDocFreqs.put(term, termDocFreqs.get(term) + 1);
-                } else {
-                    termDocFreqs.put(term, 1);
-                }
-
-                //add to term frequencies list hashmap
-                if (termFreqs.containsKey(term)) {
-                    termFreqs.put(term, termFreqs.get(term) + "," + fileName + "," + Integer.toString(termFreq));
-                } else {
-                    termFreqs.put(term, "," + fileName + "," + Integer.toString(termFreq));
-                }
-            }
-
-            index += 1;
-        }
-
+        TermFrequency tf = new TermFrequency();
+        termFreqs = tf.addTermFrequency(termFreqs,termDocFreqs,docTermFrequencies,alltextFiles);
 
     }
+
+
+    /**
+     * The preparation of setting term in one doc frequencies and a term in all documents' frequencies
+     * @param docTermFrequencies
+     * @param index
+     */
+    private void termFrequencyByDocAndWriteToFile(HashMap<String, Integer> docTermFrequencies,int index) {
+        TermFrequency tf = new TermFrequency();
+        tf.TermFrequencyByDocAndWriteToFile(docTermFrequencies,index);
+
+    }
+
+
 
     public void writeToIndexFile(int quantityOfDocuments, String index_dir, String indexFileName) {
         // now write inverted index out to file with appended IDF values at the end
@@ -158,21 +140,28 @@ public class IndexProcessor {
 
         ArrayList<HashMap<String, Integer>> docTermFrequency = new ArrayList<HashMap<String, Integer>>();
         int numbDocuments = 0;
-        Tokenizer tk = new Tokenizer();
-        StopwordsRemover swr = new StopwordsRemover();
-        if (!stopwords_file.equals(null)) {
-            tk.setStopwordList(swr.readStopwordFile(stopwords_file));
-        }
+//        Tokenizer tk = new Tokenizer();
+//        StopwordsRemover swr = new StopwordsRemover();
+//        if (!stopwords_file.equals(null)) {
+//            tk.setStopwordList(swr.readStopwordFile(stopwords_file));
+//        }
 
         Iterator<File> it = allTextFiles.iterator();
         while (it.hasNext()) {
             File textFile = it.next();
             ArrayList<String> fileLines = readFile(textFile);
+            HashMap<String, Integer> tokens = new HashMap<String, Integer>();
             if (fileLines.size() > 0) {
                 numbDocuments = 1 + numbDocuments;
-                HashMap<String, Integer> tokens = tk.tokenize(fileLines);
+                Tokenizer tk = new Tokenizer();
+                StopwordsRemover swr = new StopwordsRemover();
+                if (!stopwords_file.equals(null)) {
+                    tk.setStopwordList(swr.readStopwordFile(stopwords_file));
+                }
+                tokens = tk.tokenize(fileLines);
                 docTermFrequency.add(tokens);
             }
+            termFrequencyByDocAndWriteToFile(tokens,numbDocuments);
         }
         termFrequencyCalculation(docTermFrequency, allTextFiles);
         writeToIndexFile(numbDocuments, index_dir, indexFilename);

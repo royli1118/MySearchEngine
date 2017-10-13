@@ -18,6 +18,9 @@ public class Tokenizer {
         tokenAndQuantities = new HashMap<String,Integer>();
     }
 
+    public Tokenizer(String clear) {
+        tokenAndQuantities = new HashMap<String,Integer>();
+    }
 
     public void setStopwordList(HashSet<String> stopwordsSet) {
         stopwords.addAll(stopwordsSet);
