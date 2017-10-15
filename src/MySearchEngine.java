@@ -1,6 +1,7 @@
 public class MySearchEngine {
 
     private static String INDEX_FILENAME = "index.txt";
+    private static String STOPWORDS_DIR = "stopwords";
 
     public static void main(String[] args) {
         // read the command line options
@@ -14,7 +15,7 @@ public class MySearchEngine {
                 String index_dir = args[2];
                 String stopwords_file = null;
                 if (args.length == 4) {
-                    stopwords_file = args[3];
+                    stopwords_file = STOPWORDS_DIR+"/"+ args[3];
                 }
                 // Process multiple files and tokenization
                 IndexProcessor ipf = new IndexProcessor();

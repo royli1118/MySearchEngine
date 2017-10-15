@@ -1,4 +1,6 @@
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,7 +23,7 @@ public class TermFrequency {
         this.termFrequency = termFrequency;
     }
 
-    public HashMap<String, String> addTermFrequency(HashMap<String, String> termFreqs, HashMap<String,Integer> termDocFreqs, ArrayList<HashMap<String, Integer>> aTermFrequency, ArrayList<File> alltextFiles) {
+    public HashMap<String, String> addTermFrequency(HashMap<String, String> termFreqs, HashMap<String, Integer> termDocFreqs, ArrayList<HashMap<String, Integer>> aTermFrequency, ArrayList<File> alltextFiles) {
         int index = 0;
 
         Iterator<HashMap<String, Integer>> it = aTermFrequency.iterator();
@@ -57,30 +59,25 @@ public class TermFrequency {
     }
 
 
-
-    public HashMap<String, Integer> addTermFrequency2(HashMap<String,Integer> termDocFreqs, ArrayList<HashMap<String, Integer>> aTermFrequency, ArrayList<File> alltextFiles) {
-        int index = 0;
-
-        Iterator<HashMap<String, Integer>> it = aTermFrequency.iterator();
-        while (it.hasNext()) {
-
-            HashMap<String, Integer> termFreqsForDoc = it.next();
-
-            // List all tokens from this document
-            for (Map.Entry<String, Integer> entry : termFreqsForDoc.entrySet()) {
-                String term = entry.getKey();
-                int termFreq = entry.getValue();
-
-                // add to hashmap of term document frequencies
-                if (termDocFreqs.containsKey(term)) {
-                    termDocFreqs.put(term, termDocFreqs.get(term) + 1);
-                } else {
-                    termDocFreqs.put(term, 1);
-                }
-            }
-            index += 1;
+    public void TermFrequencyByDocAndWriteToFile(HashMap<String, Integer> termDocFreqs,int index) {
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter("index/index" + "_" + index + ".txt");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
-        return termDocFreqs;
+
+
+        // List all tokens from this document
+        for (Map.Entry<String, Integer> entry : termDocFreqs.entrySet()) {
+            String term = entry.getKey();
+            int termFreq = entry.getValue();
+            String indexLineForOutput = term + "," + String.valueOf(termFreq);
+
+            //Finalize to writing to a file
+            writer.write(indexLineForOutput + "\r\n");
+        }
+        writer.close();
     }
 
 
