@@ -11,6 +11,14 @@ public class Tokenizer {
 
     private HashSet<String> stopwords;
     private HashMap<String, Integer> tokenAndQuantities;
+    private final String HYPEN_PATTERN = "^[/w-]+(/.[/w-]+)*@[/w-]+(/.[/w-]+)+$";
+    private final String EMAIL_PATTERN = "^[/w-]+(/.[/w-]+)*@[/w-]+(/.[/w-]+)+$";
+    private final String URL_PATTERN = "^[a-zA-z]+://(/w+(-/w+)*)(/.(/w+(-/w+)*))*(/?/S*)?$";
+    private final String IPV4_PATTERN = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
+    private final String IPV6_PATTERN = "^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$";
+    private final String SINGLEQUATATION_PATTERN = "([\"'])(?:(?=(\\\\?))\\2.)*?\\1";
+    private final String MULTIPLEWORDS_PATTERN = "[A-Z][\\w\\s]+";
+    private final String ACRONYMS_PATTERN = "(?:[a-zA-Z]\\.){2,}";
 
 
     public Tokenizer() {
@@ -56,13 +64,13 @@ public class Tokenizer {
         String back = check;
 
         // regex for email addresses
-        Pattern email_pattern = Pattern.compile("^[/w-]+(/.[/w-]+)*@[/w-]+(/.[/w-]+)+$"); // Tokenize for email
+        Pattern hypen_pattern = Pattern.compile(HYPEN_PATTERN); // Tokenize for email
 
-        Matcher m = email_pattern.matcher(check);
+        Matcher m = hypen_pattern.matcher(check);
         while (m.find()) {
-            String email = m.group(0);
-            addToken(email);
-            back = back.replaceFirst(email, "");
+            String hypen = m.group(0);
+            addToken(hypen);
+            back = back.replaceFirst(hypen, "");
         }
 
         return back;
@@ -78,7 +86,7 @@ public class Tokenizer {
         String back = check;
 
         // regex for email addresses
-        Pattern email_pattern = Pattern.compile("^[/w-]+(/.[/w-]+)*@[/w-]+(/.[/w-]+)+$"); // Tokenize for email
+        Pattern email_pattern = Pattern.compile(EMAIL_PATTERN); // Tokenize for email
 
         Matcher m = email_pattern.matcher(check);
         while (m.find()) {
@@ -100,12 +108,12 @@ public class Tokenizer {
         String back = check;
 
         // regex for URL
-        Pattern url_pattern = Pattern.compile("^[a-zA-z]+://(/w+(-/w+)*)(/.(/w+(-/w+)*))*(/?/S*)?$"); //Tokenize for URL
+        Pattern url_pattern = Pattern.compile(URL_PATTERN); //Tokenize for URL
         Matcher m = url_pattern.matcher(check);
         while (m.find()) {
-            String email = m.group(0);
-            addToken(email);
-            back = back.replaceFirst(email, "");
+            String url = m.group(0);
+            addToken(url);
+            back = back.replaceFirst(url, "");
         }
 
         return back;
@@ -122,7 +130,7 @@ public class Tokenizer {
         String back = check;
 
         // regex for IPV4
-        Pattern ipv4_pattern = Pattern.compile("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"); // Tokenize for ipv4
+        Pattern ipv4_pattern = Pattern.compile(IPV4_PATTERN); // Tokenize for ipv4
         Matcher m = ipv4_pattern.matcher(check);
         while (m.find()) {
             String ipv4 = m.group(0);
@@ -143,12 +151,12 @@ public class Tokenizer {
         String back = check;
 
         // regex for IPV6
-        Pattern ipv6_pattern = Pattern.compile("^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$");// Tokenize for ipv6
+        Pattern ipv6_pattern = Pattern.compile(IPV6_PATTERN);// Tokenize for ipv6
         Matcher m = ipv6_pattern.matcher(check);
         while (m.find()) {
-            String ipv4 = m.group(0);
-            addToken(ipv4);
-            back = back.replaceFirst(ipv4, "");
+            String ipv6 = m.group(0);
+            addToken(ipv6);
+            back = back.replaceFirst(ipv6, "");
         }
 
         return back;
@@ -164,7 +172,7 @@ public class Tokenizer {
         String back = check;
 
         // regex for SingleQuotation
-        Pattern sgquo_pattern = Pattern.compile("([\"'])(?:(?=(\\\\?))\\2.)*?\\1");     // Tokenize for Single Quotation
+        Pattern sgquo_pattern = Pattern.compile(SINGLEQUATATION_PATTERN);     // Tokenize for Single Quotation
         Matcher m = sgquo_pattern.matcher(check);
         while (m.find()) {
             String sgquo = m.group(0);
@@ -185,7 +193,7 @@ public class Tokenizer {
         String back = check;
 
         // regex for multipleWords
-        Pattern mwords_pattern = Pattern.compile("[A-Z][\\w\\s]+");       // Tokenize for two or more words separated by space
+        Pattern mwords_pattern = Pattern.compile(MULTIPLEWORDS_PATTERN);       // Tokenize for two or more words separated by space
         Matcher m = mwords_pattern.matcher(check);
         while (m.find()) {
             String mwords = m.group(0);
@@ -207,7 +215,7 @@ public class Tokenizer {
         String back = check;
 
         // regex for acronyms
-        Pattern acro_pattern = Pattern.compile("(?:[a-zA-Z]\\.){2,}");
+        Pattern acro_pattern = Pattern.compile(ACRONYMS_PATTERN);
         Matcher m = acro_pattern.matcher(check);
         while (m.find()) {
             String acro = m.group(0);
@@ -241,7 +249,7 @@ public class Tokenizer {
                 line = getURL(line);
                 line = getIPV4(line);
                 line = getIPV6(line);
-                //line = getSingleQuotation(line);
+                line = getSingleQuotation(line);
                 line = getMultipleWords(line);
                 line = getAcronyms(line);
                 // If we cannot pickup the tokens in specialized requirements, we need to regard every words as tokens
