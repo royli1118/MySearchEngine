@@ -35,19 +35,6 @@ public class IndexProcessor {
 
     }
 
-
-    /**
-     * The preparation of setting term in one doc frequencies and a term in all documents' frequencies
-     *
-     * @param docTermFrequencies
-     * @param index
-     */
-    private void termFrequencyByDocAndWriteToFile(HashMap<String, Integer> docTermFrequencies, int index) {
-        TermFrequency tf = new TermFrequency();
-        tf.TermFrequencyByDocAndWriteToFile(docTermFrequencies, index);
-
-    }
-
     /**
      * Calculate the IDF and write to index.txt file
      *
@@ -65,6 +52,7 @@ public class IndexProcessor {
                 String term = entry.getKey();
                 String docNameTermFreqs = entry.getValue();
 
+                // The docFrequency is the term appears in number of Documents
                 int docFrequency = (docNameTermFreqs.split(",").length) / 2;
                 //calculate IDF
                 double idf = Math.log(quantityOfDocuments / (docFrequency + 1));
@@ -108,12 +96,6 @@ public class IndexProcessor {
                 tokens = tk.tokenize(fileLines);
                 docTermFrequency.add(tokens);
             }
-            // Construct the token frequencies by doc, such as index_1.txt
-            // index_1.txt includes
-            // e.g.
-            // [token],[tokenFrequency in this document]
-            // cat,15
-            termFrequencyByDocAndWriteToFile(tokens, numbDocuments);
         }
 
         // Construct the token frequencies in index.txt

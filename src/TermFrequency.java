@@ -1,6 +1,4 @@
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,10 +15,6 @@ public class TermFrequency {
 
     public TermFrequency() {
         termFrequency = new ArrayList<HashMap<String, Integer>>();
-    }
-
-    public TermFrequency(ArrayList<HashMap<String, Integer>> termFrequency) {
-        this.termFrequency = termFrequency;
     }
 
     public HashMap<String, String> addTermFrequency(HashMap<String, String> termFreqs, ArrayList<HashMap<String, Integer>> aTermFrequency, ArrayList<File> alltextFiles) {
@@ -55,28 +49,6 @@ public class TermFrequency {
         }
         return termFreqs;
     }
-
-
-    public void TermFrequencyByDocAndWriteToFile(HashMap<String, Integer> termDocFreqs,int index) {
-        PrintWriter writer = null;
-        try {
-            writer = new PrintWriter("index/index" + "_" + index + ".txt");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        // List all tokens from this document
-        for (Map.Entry<String, Integer> entry : termDocFreqs.entrySet()) {
-            String term = entry.getKey();
-            int termFreq = entry.getValue();
-            String indexLineForOutput = term + "," + String.valueOf(termFreq);
-
-            //Finalize to writing to a file
-            writer.write(indexLineForOutput + "\r\n");
-        }
-        writer.close();
-    }
-
 
     public ArrayList<HashMap<String, Integer>> getTermFrequency() {
 
