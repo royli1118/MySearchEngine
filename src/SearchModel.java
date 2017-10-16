@@ -48,7 +48,7 @@ public class SearchModel {
 
                         double termDotProduct = tfIDF * queryTfIdf;
 
-                        if (queryDocumentDotProducts.containsKey(docName)) {
+                        if (queryDocumentDotProducts.containsKey(docName.toLowerCase())) {
                             queryDocumentDotProducts.put(docName, queryDocumentDotProducts.get(docName) + termDotProduct);
                         } else {
                             queryDocumentDotProducts.put(docName, termDotProduct);
@@ -72,7 +72,7 @@ public class SearchModel {
                 double dotProduct = entry.getValue();
                 double cosineSimilarity = dotProduct / (Math.sqrt(invIndex.docVectorNormsSquared.get(docName)) * Math.sqrt(queryVectorNorm));
 
-                String outputString = docName + "," + String.format("%.3f", cosineSimilarity);
+                String outputString = docName + "," + String.valueOf(cosineSimilarity);
 
                 queryDocCosineSimSorted.add(outputString);
             }

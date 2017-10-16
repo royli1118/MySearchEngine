@@ -70,9 +70,9 @@ public class Tokenizer {
         while (m.find()) {
             String hypen = m.group(0);
             // Final token not containing the hypen
-            hypen = hypen.replaceAll("-","");
+            hypen = hypen.replaceAll("-", "");
             addToken(hypen);
-            back = back.replaceFirst(hypen, "");
+            back = back.replace(hypen, "");
         }
 
         return back;
@@ -94,7 +94,7 @@ public class Tokenizer {
         while (m.find()) {
             String email = m.group(0);
             addToken(email);
-            back = back.replaceFirst(email, "");
+            back = back.replace(email, "");
         }
 
         return back;
@@ -115,7 +115,7 @@ public class Tokenizer {
         while (m.find()) {
             String url = m.group(0);
             addToken(url);
-            back = back.replaceFirst(url, "");
+            back = back.replace(url, "");
         }
 
         return back;
@@ -137,7 +137,7 @@ public class Tokenizer {
         while (m.find()) {
             String ipv4 = m.group(0);
             addToken(ipv4);
-            back = back.replaceFirst(ipv4, "");
+            back = back.replace(ipv4, "");
         }
 
         return back;
@@ -158,7 +158,7 @@ public class Tokenizer {
         while (m.find()) {
             String ipv6 = m.group(0);
             addToken(ipv6);
-            back = back.replaceFirst(ipv6, "");
+            back = back.replace(ipv6, "");
         }
 
         return back;
@@ -179,7 +179,7 @@ public class Tokenizer {
         while (m.find()) {
             String sgquo = m.group(0);
             addToken(sgquo);
-            back = back.replaceFirst(sgquo, "");
+            back = back.replace(sgquo, "");
         }
 
         return back;
@@ -200,7 +200,7 @@ public class Tokenizer {
         while (m.find()) {
             String mwords = m.group(0);
             addToken(mwords);
-            back = back.replaceFirst(mwords, "");
+            back = back.replace(mwords, "");
         }
 
         return back;
@@ -222,7 +222,7 @@ public class Tokenizer {
         while (m.find()) {
             String acro = m.group(0);
             addToken(acro);
-            back = back.replaceFirst(acro, "");
+            back = back.replace(acro, "");
         }
 
         return back;
@@ -261,10 +261,9 @@ public class Tokenizer {
                         for (String word : words) {
                             if (!word.equals("")) {
                                 word = word.replaceAll("\\W", "");
-                                //word = word.replaceAll("[A-Za-z0-9]", "");
                                 word = word.replaceAll("_", "");
                                 //word = word.replaceAll("\\w+('\\w+)?", "");
-                                if (!stopwords.contains(word) && !word.equals("")) {
+                                if (!stopwords.contains(word.toLowerCase()) && !word.equals("")) {
                                     addToken(word);
                                 }
                             }
@@ -273,7 +272,6 @@ public class Tokenizer {
                 }
             }
         }
-
         return tokenAndQuantities;
     }
 
