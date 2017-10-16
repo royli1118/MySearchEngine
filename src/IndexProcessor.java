@@ -45,7 +45,29 @@ public class IndexProcessor {
     public void calculateIDFAndWriteToIndexFile(int quantityOfDocuments, String index_dir, String indexFileName) {
         // now write inverted index out to file with appended IDF values at the end
         try {
-            PrintWriter writer = new PrintWriter(index_dir + "/" + indexFileName);
+            File indexDIR = new File(index_dir);
+
+            // if the directory does not exist, create it
+            if (!indexDIR.exists()) {
+                System.out.println("creating directory: " + indexDIR.getName());
+                boolean result = false;
+
+                try {
+                    indexDIR.mkdir();
+                    result = true;
+                } catch (SecurityException se) {
+                    //handle it
+                }
+                if (result) {
+                    System.out.println("DIR created");
+                }
+            }
+
+            File indexTXT = new File(index_dir + File.separator + indexFileName);
+            if (!indexTXT.exists()) {
+                indexTXT.createNewFile();
+            }
+            PrintWriter writer = new PrintWriter(index_dir + File.separator + indexFileName);
 
             // iterate through all documents' tokens:
             for (Map.Entry<String, String> entry : termFreqs.entrySet()) {
@@ -68,6 +90,7 @@ public class IndexProcessor {
 
             writer.close();
         } catch (IOException e) {
+            e.printStackTrace();
             System.out.print("Unexpected I/O exception\n");
         }
     }
