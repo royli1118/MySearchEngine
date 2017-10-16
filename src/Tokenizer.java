@@ -17,17 +17,17 @@ public class Tokenizer {
     private final String IPV4_PATTERN = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
     private final String IPV6_PATTERN = "^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$";
     private final String SINGLEQUATATION_PATTERN = "\"(?<=').*?(?=')\"";
-    private final String MULTIPLEWORDS_PATTERN = "[A-Z][\\w\\s]+";
+    private final String MULTIPLEWORDS_PATTERN = "[A-Z][a-z]+\\s[A-Z]\\w{0,}";
     private final String ACRONYMS_PATTERN = "(?:[a-zA-Z]\\.){2,}";
 
 
     public Tokenizer() {
         stopwords = new HashSet<String>();
-        tokenAndQuantities = new HashMap<String,Integer>();
+        tokenAndQuantities = new HashMap<String, Integer>();
     }
 
     public Tokenizer(String clear) {
-        tokenAndQuantities = new HashMap<String,Integer>();
+        tokenAndQuantities = new HashMap<String, Integer>();
     }
 
     public void setStopwordList(HashSet<String> stopwordsSet) {
@@ -69,6 +69,8 @@ public class Tokenizer {
         Matcher m = hypen_pattern.matcher(check);
         while (m.find()) {
             String hypen = m.group(0);
+            // Final token not containing the hypen
+            hypen = hypen.replaceAll("-","");
             addToken(hypen);
             back = back.replaceFirst(hypen, "");
         }
@@ -86,7 +88,7 @@ public class Tokenizer {
         String back = check;
 
         // regex for email addresses
-        Pattern email_pattern = Pattern.compile(EMAIL_PATTERN,Pattern.CASE_INSENSITIVE); // Tokenize for email
+        Pattern email_pattern = Pattern.compile(EMAIL_PATTERN, Pattern.CASE_INSENSITIVE); // Tokenize for email
 
         Matcher m = email_pattern.matcher(check);
         while (m.find()) {
@@ -243,7 +245,7 @@ public class Tokenizer {
         while (it.hasNext()) {
             String line = it.next(); //get the next line
             //In order to get tokens in specialized requirements, we need to take some actions such as using regular expressions
-            if (!line.equals("\uFEFF")&&!line.equals("")){
+            if (!line.equals("\uFEFF") && !line.equals("")) {
                 line = getHypen(line);
                 line = getEmailAddresses(line);
                 line = getURL(line);
@@ -253,14 +255,19 @@ public class Tokenizer {
                 line = getMultipleWords(line);
                 line = getAcronyms(line);
                 // If we cannot pickup the tokens in specialized requirements, we need to regard every words as tokens
-                String[] words = line.split("[ .,:;”’()?!]");
-                if(words.length>0){
-                    for (String word : words) {
-                        word = word.replaceAll("\\W", "");
-                        word = word.replaceAll("[A-Za-z0-9]", "");
-                        word = word.replaceAll("_", "");
-                        if (!stopwords.contains(word)&&!word.equals("")) {
-                            addToken(word);
+                if (!line.trim().equals("")) {
+                    String[] words = line.split("[ .,:;”’()?!]");
+                    if (words.length > 0) {
+                        for (String word : words) {
+                            if (!word.equals("")) {
+                                word = word.replaceAll("\\W", "");
+                                //word = word.replaceAll("[A-Za-z0-9]", "");
+                                word = word.replaceAll("_", "");
+                                //word = word.replaceAll("\\w+('\\w+)?", "");
+                                if (!stopwords.contains(word) && !word.equals("")) {
+                                    addToken(word);
+                                }
+                            }
                         }
                     }
                 }
