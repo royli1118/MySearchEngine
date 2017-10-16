@@ -249,7 +249,7 @@ public class Tokenizer {
                 line = getURL(line);
                 line = getIPV4(line);
                 line = getIPV6(line);
-                line = getSingleQuotation(line);
+                //line = getSingleQuotation(line);
                 line = getMultipleWords(line);
                 line = getAcronyms(line);
                 // If we cannot pickup the tokens in specialized requirements, we need to regard every words as tokens

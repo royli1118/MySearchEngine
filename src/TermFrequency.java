@@ -23,7 +23,7 @@ public class TermFrequency {
         this.termFrequency = termFrequency;
     }
 
-    public HashMap<String, String> addTermFrequency(HashMap<String, String> termFreqs, HashMap<String, Integer> termDocFreqs, ArrayList<HashMap<String, Integer>> aTermFrequency, ArrayList<File> alltextFiles) {
+    public HashMap<String, String> addTermFrequency(HashMap<String, String> termFreqs, ArrayList<HashMap<String, Integer>> aTermFrequency, ArrayList<File> alltextFiles) {
         int index = 0;
 
         Iterator<HashMap<String, Integer>> it = aTermFrequency.iterator();
@@ -39,14 +39,12 @@ public class TermFrequency {
                 String term = entry.getKey();
                 int termFreq = entry.getValue();
 
-                // add to hashmap of term document frequencies
-                if (termDocFreqs.containsKey(term)) {
-                    termDocFreqs.put(term, termDocFreqs.get(term) + 1);
-                } else {
-                    termDocFreqs.put(term, 1);
-                }
-
-                //add to term frequencies list hashmap
+                // Add to term frequencies list hashmap
+                // And contstruct a index.txt format
+                // e.g.
+                // [token],[fileName1,frequencies,filename2,frequencies....],[IDF]
+                // cat,d1,1,d2,3,d3,4,0.99997
+                // but IDF calculation is in writeToIndexFile function in indexProcessor.java
                 if (termFreqs.containsKey(term)) {
                     termFreqs.put(term, termFreqs.get(term) + "," + fileName + "," + Integer.toString(termFreq));
                 } else {
@@ -66,7 +64,6 @@ public class TermFrequency {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-
 
         // List all tokens from this document
         for (Map.Entry<String, Integer> entry : termDocFreqs.entrySet()) {

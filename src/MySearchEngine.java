@@ -31,15 +31,15 @@ public class MySearchEngine {
         else if (args[0].equals("search")) {
             if (!args[1].equals(null)) {
                 // Do the Vector models and Calculation here
-                String index_dir = args[1];
-                String num_doc = args[2];
-                String[] query = new String[args.length - 3];
-                int numOfDoc = Integer.parseInt(num_doc);
-                for (int i = 3;i<args.length;i++){
-                    query[i - 3] = args[i].trim();
-                }
-                Searcher sc = new Searcher();
-                sc.searchByQuery(index_dir);
+//                String index_dir = args[1];
+//                String num_doc = args[2];
+//                String[] query = new String[args.length - 3];
+//                int numOfDoc = Integer.parseInt(num_doc);
+//                for (int i = 3;i<args.length;i++){
+//                    query[i - 3] = args[i].trim();
+//                }
+//                SearchModel sm = new SearchModel();
+//                sm.searchByQuery(index_dir,numOfDoc);
 
             } else
                 System.out.println("Please input a correct arguments");
