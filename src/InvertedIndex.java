@@ -39,7 +39,8 @@ public class InvertedIndex {
             while (fileLine.hasNext()) {
                 String line = fileLine.next();    // Read one line of the text file into a string
                 String[] parts = line.trim().split(",");  // Split the line by space into a String array
-                if (parts.length > 0) {
+                if (parts.length > 0)
+                {
                     String token = parts[0];
                     // Take last part off, its the IDF
                     String idfStr = parts[parts.length - 1];
@@ -49,17 +50,19 @@ public class InvertedIndex {
                     // now get all the doc,term-frequency pairs
                     // NOTE!! the for loop variable increments by 2 each iteration
                     HashMap<String, Integer> docTFs = new HashMap<String, Integer>();
-                    for (int i = 1; i < parts.length - 1; i += 2) {
+                    for (int i = 1; i < parts.length - 1; i += 2)
+                    {
                         String docName = parts[i];
-                        int termFreq = Integer.parseInt(parts[i + 1]);
-                        docTFs.put(docName, termFreq);
+                        int termFreq = Integer.parseInt(parts[i+1]);
+                        docTFs.put(docName,termFreq);
 
                         //build up non-duplicate set of corpus doc names
                         invertedDocs.add(docName);
 
                         //add to document vector norm calculation
-                        double tfIDFSquared = (termFreq * idf) * (termFreq * idf);
-                        if (docVectorNormsSquared.containsKey(parts[i])) {
+                        double tfIDFSquared = (termFreq*idf)*(termFreq*idf);
+                        if (docVectorNormsSquared.containsKey(parts[i]))
+                        {
                             docVectorNormsSquared.put(parts[i], docVectorNormsSquared.get(parts[i]) + tfIDFSquared);
                         } else {
                             docVectorNormsSquared.put(parts[i], tfIDFSquared);
