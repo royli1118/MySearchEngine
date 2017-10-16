@@ -36,15 +36,10 @@ public class MySearchEngine {
                 String index_dir = args[1];
                 String num_doc = args[2];
                 ArrayList<String> keyWordsList = new ArrayList<>();
-                String[] query = new String[args.length - 3];
                 int numOfDoc = Integer.parseInt(num_doc);
                 for (int i = 3;i<args.length;i++){
-                    query[i - 3] = args[i].trim();
+                    keyWordsList.add(args[i].trim()) ;
                 }
-                for (int j = 0;j<query.length;j++){
-                    keyWordsList.add(query[j]);
-                }
-
                 InvertedIndex invIndex = new InvertedIndex();
                 invIndex.constructInvertedIndexFromFile(index_dir);
                 SearchModel sm = new SearchModel(invIndex);
