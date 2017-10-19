@@ -1,6 +1,3 @@
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.LineIterator;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -9,111 +6,77 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ *Class IndexProcessor
+ *This is the IndexProcessor class. This class processes the final index file.
+ * @author Yushan Wang 
+ * @version 8.1 (16/10/2017)
+ */
 public class IndexProcessor {
-
-    // Term frequencies in one document
-    private HashMap<String, Integer> termDocFreqs;
-    // Term frequencies in all documents
+    // Term frequencies in each document which contains this term.
+    // The format is [term],[FileName1,frequencies,FileName2,Frequencies].eg. (cat, (doc1,4,doc2,8.....))
     private HashMap<String, String> termFreqs;
 
     private ArrayList<String> textFiles;
 
-    public IndexProcessor() {
-        termDocFreqs = new HashMap<String, Integer>();
+    public IndexProcessor() 
+    {
         termFreqs = new HashMap<String, String>();
     }
 
-
     /**
-     * This method is for searching all files in selected folder
-     *
-     * @param folderPath
-     * @return
-     */
-    public ArrayList<File> fileInFolder(String folderPath) {
-        // read the txtfile
-        File folder = new File(folderPath);
-
-        ArrayList<File> files = new ArrayList<File>();
-
-        File[] listOfFiles = folder.listFiles();
-        for (int i = 0; i < listOfFiles.length; i++) {
-            File file = listOfFiles[i];
-            if (file.isFile() && file.getName().endsWith(".txt")) {
-                files.add(file);
-            }
-        }
-        return files;
-    }
-
-    /**
-     * Read the File lines using Apache Common IO
-     * @param file
-     * @return
-     */
-    private ArrayList<String> readFile(File file) {
-        ArrayList<String> fileLines = new ArrayList<String>();
-
-        LineIterator it = null;
-        try {
-            it = FileUtils.lineIterator(file, "UTF-8");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            while (it.hasNext()) {
-                String line = it.nextLine().trim();
-                // faster reading line by Apache Commons IO,readlines with milliseconds
-                // Doing the tokenization line by line
-                fileLines.add(line);
-            }
-        } finally {
-            LineIterator.closeQuietly(it);
-        }
-
-        return fileLines;
-    }
-
-    /**
-     * The preparation of setting term in one doc frequencies and a term in all documents' frequencies
+     * add termFrequency to a double String structure list hashmap,eg. (cat, (doc1,4,doc2,8.....))
      * @param docTermFrequencies
      * @param alltextFiles
      */
-    private void termFrequencyCalculation(ArrayList<HashMap<String, Integer>> docTermFrequencies,
-                             ArrayList<File> alltextFiles) {
-        termDocFreqs = new HashMap<String, Integer>();
+    private void termFrequencyCalculation(ArrayList<HashMap<String, Integer>> docTermFrequencies, ArrayList<File> alltextFiles) 
+    {
         termFreqs = new HashMap<String, String>();
         TermFrequency tf = new TermFrequency();
-        termFreqs = tf.addTermFrequency(termFreqs,termDocFreqs,docTermFrequencies,alltextFiles);
+        termFreqs = tf.addTermFrequency(termFreqs, docTermFrequencies, alltextFiles);
 
     }
-
 
     /**
-     * The preparation of setting term in one doc frequencies and a term in all documents' frequencies
-     * @param docTermFrequencies
-     * @param index
+     * Calculate the IDF and write to index.txt file
+     * @param quantityOfDocuments
+     * @param index_dir
+     * @param indexFileName
      */
-    private void termFrequencyByDocAndWriteToFile(HashMap<String, Integer> docTermFrequencies,int index) {
-        TermFrequency tf = new TermFrequency();
-        tf.TermFrequencyByDocAndWriteToFile(docTermFrequencies,index);
-
-    }
-
-
-
-    public void writeToIndexFile(int quantityOfDocuments, String index_dir, String indexFileName) {
+    public void calculateIDFAndWriteToIndexFile(int quantityOfDocuments, String index_dir, String indexFileName) {
         // now write inverted index out to file with appended IDF values at the end
         try {
-            PrintWriter writer = new PrintWriter(index_dir + "/" + indexFileName);
+            File indexDIR = new File(index_dir);
+
+            // if the directory does not exist, create it
+            if (!indexDIR.exists()) {
+                System.out.println("creating directory: " + indexDIR.getName());
+                boolean result = false;
+
+                try {
+                    indexDIR.mkdir();
+                    result = true;
+                } catch (SecurityException se) {
+                    //handle it
+                }
+                if (result) {
+                    System.out.println("DIR created");
+                }
+            }
+
+            File indexTXT = new File(index_dir + File.separator + indexFileName);
+            if (!indexTXT.exists()){
+                indexTXT.createNewFile();
+            }
+            PrintWriter writer = new PrintWriter(index_dir + File.separator + indexFileName);
 
             // iterate through all documents' tokens:
             for (Map.Entry<String, String> entry : termFreqs.entrySet()) {
                 String term = entry.getKey();
                 String docNameTermFreqs = entry.getValue();
 
-                int docFrequency = termDocFreqs.get(term);
+                // The docFrequency is the term appears in number of Documents
+                int docFrequency = (docNameTermFreqs.split(",").length) / 2;
                 //calculate IDF
                 double idf = Math.log(quantityOfDocuments / (docFrequency + 1));
                 //round idf
@@ -128,28 +91,31 @@ public class IndexProcessor {
 
             writer.close();
         } catch (IOException e) {
+            e.printStackTrace();
             System.out.print("Unexpected I/O exception\n");
         }
     }
 
-
-    public void index(String collection_dir, String index_dir, String indexFilename, String stopwords_file) {
+    /**
+     * index function
+     * @param collection_dir
+     * @param index_dir
+     * @param indexFilename
+     * @param stopwords_file
+     */
+    public void index(String collection_dir, String index_dir, String indexFilename, String stopwords_file) 
+    {
 
         // search all files in the folder
-        ArrayList<File> allTextFiles = fileInFolder(collection_dir);
+        FileIO f = new FileIO();
+        ArrayList<File> allTextFiles = f.fileInFolder(collection_dir);
 
-        ArrayList<HashMap<String, Integer>> docTermFrequency = new ArrayList<HashMap<String, Integer>>();
+        ArrayList<HashMap<String, Integer>> docTermFrequencies = new ArrayList<HashMap<String, Integer>>();
         int numbDocuments = 0;
-//        Tokenizer tk = new Tokenizer();
-//        StopwordsRemover swr = new StopwordsRemover();
-//        if (!stopwords_file.equals(null)) {
-//            tk.setStopwordList(swr.readStopwordFile(stopwords_file));
-//        }
-
         Iterator<File> it = allTextFiles.iterator();
         while (it.hasNext()) {
             File textFile = it.next();
-            ArrayList<String> fileLines = readFile(textFile);
+            ArrayList<String> fileLines = f.readFile(textFile);
             HashMap<String, Integer> tokens = new HashMap<String, Integer>();
             if (fileLines.size() > 0) {
                 numbDocuments = 1 + numbDocuments;
@@ -159,12 +125,15 @@ public class IndexProcessor {
                     tk.setStopwordList(swr.readStopwordFile(stopwords_file));
                 }
                 tokens = tk.tokenize(fileLines);
-                docTermFrequency.add(tokens);
+                docTermFrequencies.add(tokens);
             }
-            termFrequencyByDocAndWriteToFile(tokens,numbDocuments);
         }
-        termFrequencyCalculation(docTermFrequency, allTextFiles);
-        writeToIndexFile(numbDocuments, index_dir, indexFilename);
+
+        // Construct the token frequencies in index.txt
+        // index.txt includes
+        // eg.[token],[fileName1,termFrequencies,fileName2,termFrequencies.....],[IDF}
+        termFrequencyCalculation(docTermFrequencies, allTextFiles);
+        calculateIDFAndWriteToIndexFile(numbDocuments, index_dir, indexFilename);
     }
 
 }

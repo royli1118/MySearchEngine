@@ -1,34 +1,37 @@
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Write a description of class TermFrequency here.
- *
- * @author (your name)
- * @version (a version number or a date)
+ *Class TermFrequency
+ *This is the TermFrequency class. This class calculates the term frequency in each ducument and put the terms in hashmap.
+ * @author Yushan Wang 
+ * @version 8.1 (16/10/2017)
  */
-public class TermFrequency {
+public class TermFrequency 
+{
+    //ArrayList is for the hashmap list of each term frequency in each document, eg. (doc3,4),(doc9,8),......
     private ArrayList<HashMap<String, Integer>> termFrequency;
 
-    public TermFrequency() {
+    public TermFrequency() 
+    {
         termFrequency = new ArrayList<HashMap<String, Integer>>();
     }
-
-    public TermFrequency(ArrayList<HashMap<String, Integer>> termFrequency) {
-        this.termFrequency = termFrequency;
-    }
-
-    public HashMap<String, String> addTermFrequency(HashMap<String, String> termFreqs, HashMap<String, Integer> termDocFreqs, ArrayList<HashMap<String, Integer>> aTermFrequency, ArrayList<File> alltextFiles) {
+    
+    /**
+     * add termFrequency to a double String structure list hashmap,eg. (cat, (doc1,4,doc2,8.....))
+     * @param termFreqs,aTermFrequency,alltextFiles
+     * return termFreqs
+     */
+    public HashMap<String, String> addTermFrequency(HashMap<String, String> termFreqs, ArrayList<HashMap<String, Integer>> aTermFrequency, ArrayList<File> alltextFiles) 
+    {
         int index = 0;
 
         Iterator<HashMap<String, Integer>> it = aTermFrequency.iterator();
         while (it.hasNext()) {
-
+            //the frequency of each term in one document,eg. (cat,29) in doc1
             HashMap<String, Integer> termFreqsForDoc = it.next();
 
             // Get the filename of this document
@@ -39,14 +42,12 @@ public class TermFrequency {
                 String term = entry.getKey();
                 int termFreq = entry.getValue();
 
-                // add to hashmap of term document frequencies
-                if (termDocFreqs.containsKey(term)) {
-                    termDocFreqs.put(term, termDocFreqs.get(term) + 1);
-                } else {
-                    termDocFreqs.put(term, 1);
-                }
-
-                //add to term frequencies list hashmap
+                // Add to term frequencies list hashmap
+                // And contstruct a index.txt format
+                // e.g.
+                // [token],[fileName1,frequencies,filename2,frequencies....],[IDF]
+                // cat,d1,1,d2,3,d3,4,0.99997
+                // but IDF calculation is in writeToIndexFile function in indexProcessor.java
                 if (termFreqs.containsKey(term)) {
                     termFreqs.put(term, termFreqs.get(term) + "," + fileName + "," + Integer.toString(termFreq));
                 } else {
@@ -55,32 +56,14 @@ public class TermFrequency {
             }
             index += 1;
         }
+        //a double String structure hashmap,eg. (cat, (doc1,4,doc2,8.....))
         return termFreqs;
     }
 
-
-    public void TermFrequencyByDocAndWriteToFile(HashMap<String, Integer> termDocFreqs,int index) {
-        PrintWriter writer = null;
-        try {
-            writer = new PrintWriter("index/index" + "_" + index + ".txt");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-
-        // List all tokens from this document
-        for (Map.Entry<String, Integer> entry : termDocFreqs.entrySet()) {
-            String term = entry.getKey();
-            int termFreq = entry.getValue();
-            String indexLineForOutput = term + "," + String.valueOf(termFreq);
-
-            //Finalize to writing to a file
-            writer.write(indexLineForOutput + "\r\n");
-        }
-        writer.close();
-    }
-
-
+    /**
+     * get termFrequency
+     * return termFrequency
+     */
     public ArrayList<HashMap<String, Integer>> getTermFrequency() {
 
         return termFrequency;

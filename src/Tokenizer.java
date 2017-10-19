@@ -7,27 +7,58 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Class Tokenizer
+ * This is the Tokenizer class. This class includes the methods of tokenizing the terms, removing the stopwords and stemming terms.
+ *
+ * @author Yushan Wang
+ * @version 8.1 (16/10/2017)
+ */
 public class Tokenizer {
 
     private HashSet<String> stopwords;
+
+    //This hashMap has entries that has the tokenized terms as keys and their frequencies as values
     private HashMap<String, Integer> tokenAndQuantities;
 
+    //regex for words with hyphen
+    private final String HYPHEN_PATTERN = "^[/w-]+(/.[/w-]+)*@[/w-]+(/.[/w-]+)+$";
+    // regex for email addresses
+    private final String EMAIL_PATTERN = "[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}";
+    // regex for URL
+    private final String URL_PATTERN = "((([A-Za-z]{3,9}:(?:\\/\\/)?)(?:[\\-;:&=\\+\\$,\\w]+@)?[A-Za-z0-9\\.\\-]+|(?:www\\.|[\\-;:&=\\+\\$,\\w]+@)[A-Za-z0-9\\.\\-]+)((?:\\/[\\+~%\\/\\.\\w\\-_]*)?\\??(?:[\\-\\+=&;%@\\.\\w_]*)#?(?:[\\.\\!\\/\\\\\\w]*))?)";
+    // regex for IPV4
+    private final String IPV4_PATTERN = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
+    // regex for IPV6
+    private final String IPV6_PATTERN = "^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$";
+    // regex for SingleQuotation
+    private final String SINGLEQUATATION_PATTERN = "\"(?<=').*?(?=')\"";
+    // regex for multipleWords
+    private final String MULTIPLEWORDS_PATTERN = "[A-Z][a-z]+\\s[A-Z]\\w{0,}";
+    // regex for acronyms
+    private final String ACRONYMS_PATTERN = "(?:[a-zA-Z]\\.){2,}";
 
+    /**
+     * create a Tokenizer
+     */
     public Tokenizer() {
         stopwords = new HashSet<String>();
-        tokenAndQuantities = new HashMap<String,Integer>();
+        tokenAndQuantities = new HashMap<String, Integer>();
     }
 
-    public Tokenizer(String clear) {
-        tokenAndQuantities = new HashMap<String,Integer>();
-    }
-
+    /**
+     * set stopwords list
+     *
+     * @param stopwordsSet
+     */
     public void setStopwordList(HashSet<String> stopwordsSet) {
         stopwords.addAll(stopwordsSet);
     }
 
+
     /**
-     * Add the Token Quantities to the hashmap
+     * Add the token to the hashmap
+     * Stemming the tokens befeore add the token
      *
      * @param token
      */
@@ -47,22 +78,22 @@ public class Tokenizer {
 
 
     /**
-     * Token Hypen Words
+     * Token Hyphen Words
      *
      * @param check
      * @return
      */
-    private String getHypen(String check) {
+    private String getHyphen(String check) {
         String back = check;
 
-        // regex for email addresses
-        Pattern email_pattern = Pattern.compile("^[/w-]+(/.[/w-]+)*@[/w-]+(/.[/w-]+)+$"); // Tokenize for email
-
-        Matcher m = email_pattern.matcher(check);
+        Pattern hyphen_pattern = Pattern.compile(HYPHEN_PATTERN); // Tokenize hyphen words
+        //Compare "check" and the regex of hyphen words
+        Matcher m = hyphen_pattern.matcher(check);
         while (m.find()) {
-            String email = m.group(0);
-            addToken(email);
-            back = back.replaceFirst(email, "");
+            String hyphen = m.group(0);//get the whole matcher
+            hyphen = hyphen.replaceAll("-", "");
+            addToken(hyphen);
+            back = back.replace(hyphen, "");//replace the hyphen word with "" in the original file 
         }
 
         return back;
@@ -77,14 +108,13 @@ public class Tokenizer {
     private String getEmailAddresses(String check) {
         String back = check;
 
-        // regex for email addresses
-        Pattern email_pattern = Pattern.compile("^[/w-]+(/.[/w-]+)*@[/w-]+(/.[/w-]+)+$"); // Tokenize for email
+        Pattern email_pattern = Pattern.compile(EMAIL_PATTERN, Pattern.CASE_INSENSITIVE); // Tokenize email
 
         Matcher m = email_pattern.matcher(check);
         while (m.find()) {
             String email = m.group(0);
             addToken(email);
-            back = back.replaceFirst(email, "");
+            back = back.replace(email, "");
         }
 
         return back;
@@ -99,13 +129,13 @@ public class Tokenizer {
     private String getURL(String check) {
         String back = check;
 
-        // regex for URL
-        Pattern url_pattern = Pattern.compile("^[a-zA-z]+://(/w+(-/w+)*)(/.(/w+(-/w+)*))*(/?/S*)?$"); //Tokenize for URL
+        Pattern url_pattern = Pattern.compile(URL_PATTERN); //Tokenize URL
+
         Matcher m = url_pattern.matcher(check);
         while (m.find()) {
-            String email = m.group(0);
-            addToken(email);
-            back = back.replaceFirst(email, "");
+            String url = m.group(0);
+            addToken(url);
+            back = back.replace(url, "");
         }
 
         return back;
@@ -121,13 +151,13 @@ public class Tokenizer {
     private String getIPV4(String check) {
         String back = check;
 
-        // regex for IPV4
-        Pattern ipv4_pattern = Pattern.compile("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"); // Tokenize for ipv4
+        Pattern ipv4_pattern = Pattern.compile(IPV4_PATTERN); // Tokenize ipv4
+
         Matcher m = ipv4_pattern.matcher(check);
         while (m.find()) {
             String ipv4 = m.group(0);
             addToken(ipv4);
-            back = back.replaceFirst(ipv4, "");
+            back = back.replace(ipv4, "");
         }
 
         return back;
@@ -142,13 +172,13 @@ public class Tokenizer {
     private String getIPV6(String check) {
         String back = check;
 
-        // regex for IPV6
-        Pattern ipv6_pattern = Pattern.compile("^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$");// Tokenize for ipv6
+        Pattern ipv6_pattern = Pattern.compile(IPV6_PATTERN);// Tokenize ipv6
+
         Matcher m = ipv6_pattern.matcher(check);
         while (m.find()) {
-            String ipv4 = m.group(0);
-            addToken(ipv4);
-            back = back.replaceFirst(ipv4, "");
+            String ipv6 = m.group(0);
+            addToken(ipv6);
+            back = back.replace(ipv6, "");
         }
 
         return back;
@@ -163,13 +193,13 @@ public class Tokenizer {
     private String getSingleQuotation(String check) {
         String back = check;
 
-        // regex for SingleQuotation
-        Pattern sgquo_pattern = Pattern.compile("([\"'])(?:(?=(\\\\?))\\2.)*?\\1");     // Tokenize for Single Quotation
+        Pattern sgquo_pattern = Pattern.compile(SINGLEQUATATION_PATTERN);     // Tokenize Single Quotation
+
         Matcher m = sgquo_pattern.matcher(check);
         while (m.find()) {
             String sgquo = m.group(0);
             addToken(sgquo);
-            back = back.replaceFirst(sgquo, "");
+            back = back.replace(sgquo, "");
         }
 
         return back;
@@ -184,13 +214,13 @@ public class Tokenizer {
     private String getMultipleWords(String check) {
         String back = check;
 
-        // regex for multipleWords
-        Pattern mwords_pattern = Pattern.compile("[A-Z][\\w\\s]+");       // Tokenize for two or more words separated by space
+        Pattern mwords_pattern = Pattern.compile(MULTIPLEWORDS_PATTERN);       // Tokenize two or more words separated by space
+
         Matcher m = mwords_pattern.matcher(check);
         while (m.find()) {
             String mwords = m.group(0);
             addToken(mwords);
-            back = back.replaceFirst(mwords, "");
+            back = back.replace(mwords, "");
         }
 
         return back;
@@ -206,13 +236,13 @@ public class Tokenizer {
     private String getAcronyms(String check) {
         String back = check;
 
-        // regex for acronyms
-        Pattern acro_pattern = Pattern.compile("(?:[a-zA-Z]\\.){2,}");
+        Pattern acro_pattern = Pattern.compile(ACRONYMS_PATTERN); //Tokenize acronyms words
+
         Matcher m = acro_pattern.matcher(check);
         while (m.find()) {
             String acro = m.group(0);
             addToken(acro);
-            back = back.replaceFirst(acro, "");
+            back = back.replace(acro, "");
         }
 
         return back;
@@ -221,12 +251,6 @@ public class Tokenizer {
 
     /**
      * HashMap of {token -> frequency}
-     * 1. remove whitespace seperated capital letter chaines
-     * a. if its chain at end of line, dont add it wait to check next line
-     * b. if chain is at start of line and last line had chain then first combine them
-     * c. otherwise just add the token
-     * 2. remove email addresses
-     * 3. split rest of tokens on whitespace and punctuation
      */
     public HashMap<String, Integer> tokenize(ArrayList<String> lines) {
 
@@ -235,20 +259,23 @@ public class Tokenizer {
         while (it.hasNext()) {
             String line = it.next(); //get the next line
             //In order to get tokens in specialized requirements, we need to take some actions such as using regular expressions
-            if (!line.equals("\uFEFF")&&!line.equals("")){
-                line = getHypen(line);
+            if (!line.equals("\uFEFF") && !line.equals("")) {
+                line = getHyphen(line);
                 line = getEmailAddresses(line);
                 line = getURL(line);
                 line = getIPV4(line);
                 line = getIPV6(line);
-                //line = getSingleQuotation(line);
+                line = getSingleQuotation(line);
                 line = getMultipleWords(line);
                 line = getAcronyms(line);
                 // If we cannot pickup the tokens in specialized requirements, we need to regard every words as tokens
                 String[] words = line.split("[ .,:;”’()?!]");
-                if(words.length>0){
+                if (words.length > 0) {
                     for (String word : words) {
-                        if (!stopwords.contains(word)&&!word.equals("")) {
+                        word = word.replaceAll("\\W", "");//replace special characters
+                        word = word.replaceAll("_", "");
+                        word = word.replaceAll("[A-Za-z0-9]", "");
+                        if (!stopwords.contains(word) && !word.equals("")) {
                             addToken(word);
                         }
                     }
@@ -258,6 +285,4 @@ public class Tokenizer {
 
         return tokenAndQuantities;
     }
-
-
 }

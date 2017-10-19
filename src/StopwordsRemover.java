@@ -1,40 +1,62 @@
-
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.LineIterator;
-
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
 
-public class StopwordsRemover {
+/**
+ *Class Tokenizer
+ *This is the StopwordsRemover class. This class read the stopwords file.
+ * @author Yushan Wang 
+ * @version 8.1 (16/10/2017)
+ */
+public class StopwordsRemover 
+{
 
     /**
-     * Read the stopwords from File.
-     *
+     * read stopwords filẹ̣̣, reference from https://kb.yoast.com/kb/list-stop-words/
+     * @param stopwordFilePath
+     * @return
      */
     public HashSet<String> readStopwordFile(String stopwordFilePath) {
         HashSet<String> stopwords = new HashSet<String>();
         File file = new File(stopwordFilePath);
 
-        LineIterator it = null;
+        BufferedReader br = null;
+        FileReader fr = null;
 
         try {
-            it = FileUtils.lineIterator(file, "UTF-8");
+
+            //br = new BufferedReader(new FileReader(FILENAME));
+            fr = new FileReader(file);
+            br = new BufferedReader(fr);
+
+            String sCurrentLine;
+
+            while ((sCurrentLine = br.readLine()) != null) {
+                stopwords.add(sCurrentLine.trim());
+            }
 
         } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        try {
-            while (it.hasNext()) {
-                String line = it.nextLine().trim();
-                // faster reading line by Apache Commons IO,readlines with milliseconds
-                // Doing the tokenization line by line
-                stopwords.add(line);
-            }
+            e.printStackTrace();
+
         } finally {
-            LineIterator.closeQuietly(it);
+
+            try {
+
+                if (br != null)
+                    br.close();
+
+                if (fr != null)
+                    fr.close();
+
+            } catch (IOException ex) {
+
+                ex.printStackTrace();
+
+            }
+
         }
 
         return stopwords;
